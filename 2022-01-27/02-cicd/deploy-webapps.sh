@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# bash options to fail fast
+set -euo pipefail
+
 keep_last=5
 
 if [ "$#" -gt 0 ]; then
@@ -16,6 +20,11 @@ deploy_app () {
         | c8y applications listApplicationBinaries -p 100 \
         | head -n "-$keep_last" \
         | c8y applications deleteApplicationBinary --application "$name"
+    
+    #
+    # Add tenant options
+    deployed_date="$(date --iso-8601=seconds)"
+    c8y tenantoptions create --category "$name" --key "deployed_on" --value "$deployed_date"
 }
 
 #
