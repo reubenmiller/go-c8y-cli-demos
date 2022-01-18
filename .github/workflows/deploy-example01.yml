@@ -1,5 +1,6 @@
 name: deploy-example01
 env:
+  CI: true
   C8Y_SETTINGS_CI: true
 
 on:
