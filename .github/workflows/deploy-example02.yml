@@ -12,10 +12,10 @@ env:
 on:
   workflow_dispatch:
     inputs:
-      cli_options:
-        description: 'Optional CLI arguments to be added to call'
+      keep_last:
+        description: 'Number of deployments to keep'
         required: false
-        default: ''
+        default: '5'
 
   release:
     types: [released]  
@@ -42,10 +42,11 @@ jobs:
       - name: Deploy web applications
         run: |
           chmod +x ./2022-01-27/02-cicd/deploy-webapps.sh
-          ./2022-01-27/02-cicd/deploy-webapps.sh
+          ./2022-01-27/02-cicd/deploy-webapps.sh "$KEEP_LAST"
         env:
           C8Y_HOST: ${{ secrets.C8Y_HOST }}
           # Tenant name is optional
           # C8Y_TENANT: ${{ secrets.C8Y_TENANT }}
           C8Y_USERNAME: ${{ secrets.C8Y_USERNAME }}
           C8Y_PASSWORD: ${{ secrets.C8Y_PASSWORD }}
+          KEEP_LAST: ${{ github.event.inputs.keep_last }}
