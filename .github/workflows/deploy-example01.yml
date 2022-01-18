@@ -26,16 +26,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install dep
+      - name: Install dependencies
         run: |
-          gh release download -R reubenmiller/go-c8y-cli --pattern c8y_linux_amd64 --dir $HOME/.local/bin
-          mv "$HOME/.local/bin/c8y_linux_amd64" "$HOME/.local/bin/c8y"
-          chmod +x "$HOME/.local/bin/c8y"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          # Manually download
+          #gh release download -R reubenmiller/go-c8y-cli --pattern c8y_linux_amd64 --dir $HOME/.local/bin
+          #mv "$HOME/.local/bin/c8y_linux_amd64" "$HOME/.local/bin/c8y"
+          #chmod +x "$HOME/.local/bin/c8y"
+          #echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-          #brew tap reubenmiller/go-c8y-cli
-          #brew update
-          #brew install go-c8y-cli
+          # Using homewbrew
+          brew tap reubenmiller/go-c8y-cli
+          brew update
+          brew install go-c8y-cli
 
       - name: Deploy web applications
         run: |
@@ -43,6 +45,7 @@ jobs:
           ./2022-01-27/02-cicd/deploy-webapps.sh
         env:
           C8Y_HOST: ${{ secrets.C8Y_HOST }}
+          # Tenant name is optional
           # C8Y_TENANT: ${{ secrets.C8Y_TENANT }}
           C8Y_USERNAME: ${{ secrets.C8Y_USERNAME }}
           C8Y_PASSWORD: ${{ secrets.C8Y_PASSWORD }}
