@@ -29,10 +29,9 @@ jobs:
       - name: Install dependencies
         run: |
           # Manually download
-          gh release download -R reubenmiller/go-c8y-cli --pattern c8y_linux_amd64
-          mv c8y_linux_amd64 c8y
-          chmod +x c8y
-          mv c8y "$HOME/.local/bin/"
+          gh release download -R reubenmiller/go-c8y-cli --pattern c8y_linux_amd64 --dir "$HOME/.local/bin"
+          mv "$HOME/.local/bin/c8y_linux_amd64" "$HOME/.local/bin/c8y"
+          chmod +x "$HOME/.local/bin/c8y"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
           # Using homewbrew
