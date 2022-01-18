@@ -43,6 +43,6 @@ jobs:
           ./2022-01-27/02-cicd/deploy-webapps.sh
         env:
           C8Y_HOST: ${{ secrets.C8Y_HOST }}
-          C8Y_TENANT: ${{ secrets.C8Y_TENANT }}
+          # C8Y_TENANT: ${{ secrets.C8Y_TENANT }}
           C8Y_USERNAME: ${{ secrets.C8Y_USERNAME }}
           C8Y_PASSWORD: ${{ secrets.C8Y_PASSWORD }}
