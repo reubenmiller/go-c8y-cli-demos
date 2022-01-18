@@ -20,3 +20,11 @@ The github action workflow is located here:
 ```sh
 gh workflow run -R reubenmiller/go-c8y-cli-demos deploy-example02 -f keep_last=5
 ```
+
+## Check tenant options
+
+The tenant options can be viewed by running:
+
+```sh
+c8y tenantoptions getForCategory --category mywebapp
+```
