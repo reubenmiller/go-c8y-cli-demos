@@ -39,6 +39,7 @@ jobs:
 
       - name: Deploy web applications
         run: |
+          chmod +x ./2022-01-27/02-cicd/deploy-webapps.sh
           ./2022-01-27/02-cicd/deploy-webapps.sh
         env:
           C8Y_HOST: ${{ secrets.C8Y_HOST }}
