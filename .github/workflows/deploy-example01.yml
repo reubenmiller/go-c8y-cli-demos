@@ -21,9 +21,12 @@ jobs:
 
       - name: Install dep
         run: |
-          brew tap reubenmiller/go-c8y-cli
-          brew update
-          brew install go-c8y-cli
+          gh release download -R reubenmiller/go-c8y-cli --pattern c8y_linux_amd64 --dir $HOME/.local/bin
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          
+          #brew tap reubenmiller/go-c8y-cli
+          #brew update
+          #brew install go-c8y-cli
 
       - name: Deploy web applications
         run: |
