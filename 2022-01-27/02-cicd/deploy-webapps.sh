@@ -24,7 +24,7 @@ deploy_app () {
     #
     # Add tenant options
     deployed_date="$(date --iso-8601=seconds)"
-    c8y tenantoptions create --category "$name" --key "deployed_on" --value "$deployed_date"
+    c8y tenantoptions create -n --category "$name" --key "deployed_on" --value "$deployed_date"
 }
 
 #
