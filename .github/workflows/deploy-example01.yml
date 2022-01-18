@@ -1,6 +1,12 @@
 name: deploy-example01
 env:
+  #
+  # gh settings
   CI: true
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  #
+  # c8y settings
   C8Y_SETTINGS_CI: true
 
 on:
