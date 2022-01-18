@@ -1,0 +1,35 @@
+name: deploy-example01
+env:
+  C8Y_SETTINGS_CI: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      cli_options:
+        description: 'Optional CLI arguments to be added to call'
+        required: false
+        default: ''
+
+  release:
+    types: [released]  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dep
+        run: |
+          brew tap reubenmiller/go-c8y-cli
+          brew update
+          brew install go-c8y-cli
+
+      - name: Deploy web applications
+        run: |
+          ./2022-01-27/02-cicd/deploy-webapps.sh
+        env:
+          C8Y_HOST: ${{ secrets.C8Y_HOST }}
+          C8Y_TENANT: ${{ secrets.C8Y_TENANT }}
+          C8Y_USER: ${{ secrets.C8Y_USER }}
+          C8Y_PASSWORD: ${{ secrets.C8Y_PASSWORD }}
