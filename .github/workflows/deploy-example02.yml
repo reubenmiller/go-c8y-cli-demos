@@ -51,7 +51,7 @@ jobs:
           ./2022-01-27/02-cicd/deploy-webapps.sh "$KEEP_LAST" < /dev/null
 
       - name: Deploy microservices
-        if: ${{ True }}
+        if: ${{ true }}
         run: |
           cd ./2022-01-27/02-cicd
           c8y microservices create --file ./hello-world.zip --availability PRIVATE
