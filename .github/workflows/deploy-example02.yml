@@ -10,7 +10,7 @@ env:
   C8Y_SETTINGS_CI: true
   C8Y_HOST: ${{ secrets.C8Y_HOST }}
   # Tenant name is optional
-  # C8Y_TENANT: ${{ secrets.C8Y_TENANT }}
+  C8Y_TENANT: ${{ secrets.C8Y_TENANT }}
   C8Y_USERNAME: ${{ secrets.C8Y_USERNAME }}
   C8Y_PASSWORD: ${{ secrets.C8Y_PASSWORD }}
   KEEP_LAST: ${{ github.event.inputs.keep_last }}
