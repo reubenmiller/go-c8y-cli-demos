@@ -20,5 +20,5 @@ for file in *agent*.ini; do
         c8y configuration create --name "${file%.*}" \
             --configurationType "DEVICE_AGENT" \
             --file "$file" \
-            --template "{description: 'Agent config (ci: runId: $GITHUB_RUN_ID, runNumber: $GITHUB_RUN_NUMBER)', cicd_build: {runId: '$GITHUB_RUN_ID', runNumber: '$GITHUB_RUN_NUMBER'}}"
+            --template "{description: 'Agent config (branch: $GITHUB_REF_NAME, run: $GITHUB_RUN_NUMBER)', cicd_build: {branch: '$GITHUB_REF_NAME', sha: '$GITHUB_SHA' runId: '$GITHUB_RUN_ID', runNumber: '$GITHUB_RUN_NUMBER'}}"
 done
