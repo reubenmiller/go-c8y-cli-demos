@@ -22,6 +22,12 @@ on:
         description: 'Number of deployments to keep'
         required: false
         default: '5'
+      
+      deploy_ms:
+        description: 'Deploy microservice?'
+        required: false
+        default: false
+        type: boolean
 
   release:
     types: [released]  
@@ -51,7 +57,7 @@ jobs:
           ./2022-01-27/02-cicd/deploy-webapps.sh "$KEEP_LAST" < /dev/null
 
       - name: Deploy microservices
-        if: ${{ true }}
+        if: ${{ github.event.inputs.deploy_ms && github.event.inputs.deploy_ms != 'false' }}
         run: |
           c8y microservices create --file ./2022-01-27/02-cicd/helloworld.zip --availability PRIVATE
         shell: bash
