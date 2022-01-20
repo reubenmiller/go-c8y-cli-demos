@@ -16,7 +16,7 @@ deploy_app () {
     local name="$1"
 
     echo "[name=$name] Deploying an web application (keeping only last 3 deployments)"
-    c8y applications createHostedApplication -n --file "$name/" \
+    c8y applications createHostedApplication --file "$name/" \
         | c8y applications listApplicationBinaries -p 100 \
         | head -n "-$keep_last" \
         | c8y applications deleteApplicationBinary --application "$name"
@@ -24,7 +24,7 @@ deploy_app () {
     #
     # Add tenant options
     deployed_date="$(date --iso-8601=seconds)"
-    c8y tenantoptions create -n --category "$name" --key "deployed_on" --value "$deployed_date"
+    c8y tenantoptions create --category "$name" --key "deployed_on" --value "$deployed_date"
 }
 
 #
