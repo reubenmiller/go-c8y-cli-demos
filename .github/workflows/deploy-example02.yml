@@ -4,7 +4,7 @@ env:
   # gh settings
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-  C8Y_SETTINGS_ACTIVITYLOG_PATH: ${{ env.HOME }}
+  C8Y_SETTINGS_ACTIVITYLOG_PATH: $HOME
 
   #
   # c8y settings
