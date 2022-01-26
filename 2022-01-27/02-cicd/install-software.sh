@@ -15,7 +15,9 @@ install_software () {
     c8y devices list -n --includeAll --query "c8y_DeploymentGroup.name eq '$group_name'" --output table
 
     echo "Activity log settings"
-    c8y settings list --select activitylog --raw 
+    c8y settings list --select activitylog --raw
+    ls -ltr "$HOME/"*.json
+
 
     echo "Install software: name=$name, version=$version, deployment_group=$group_name"
     c8y devices list -n --includeAll --query "c8y_DeploymentGroup.name eq '$group_name'" \
