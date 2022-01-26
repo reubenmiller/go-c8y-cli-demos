@@ -13,8 +13,7 @@ install_software () {
     local version="$3"
 
     c8y devices list -n --includeAll --query "c8y_DeploymentGroup.name eq '$group_name'" \
-    | c8y software versions install --software "$name" --version "$version" \
-    | c8y operations | wait
+    | c8y software versions install --software "$name" --version "$version"
 }
 
 #

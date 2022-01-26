@@ -6,13 +6,14 @@
             "priority": 400,
             "contentType": "",
             "self": "",
-            "type": "linuxboxA",
+            "type": "",
             "fragments": ["c8y_IsDevice"],
             "columns": [
                 "id",
                 "name",
                 "type",
                 "owner",
+                "c8y_DeploymentGroup.*",
                 "lastUpdated",
                 "c8y_Hardware.serialNumber",
                 "c8y_Availability.status"

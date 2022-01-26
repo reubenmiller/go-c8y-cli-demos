@@ -9,7 +9,7 @@ WORKERS=50
 setup () {
     c8y util repeat --input "device" --format "%s_%03s" "$TOTAL_DEVICES" |
         c8y agents create --workers 10 |
-        c8y devices update --template "{c8y_SupportedOperations:['c8y_SoftwareList', 'c8y_Restart']}"
+        c8y devices update --template "{c8y_SupportedOperations:['c8y_SoftwareList', 'c8y_Restart'], c8y_DeploymentGroup: {name: if input.index <= 10 then 'canary_10' else 'main' }}"
     c8y devices list --name "device_*" --pageSize 1000 --select id,name,type > "$DEVICE_LIST"
 }
 
