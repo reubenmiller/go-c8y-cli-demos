@@ -88,7 +88,8 @@ install_software () {
     bulk_operation=$(
         c8y smartgroups create \
             --name "CICD deployment [id=$GITHUB_RUN_NUMBER, group=$group_name]" \
-            --invisible --query "c8y_DeploymentGroup.name eq '$group_name'" \
+            --invisible \
+            --query "c8y_DeploymentGroup.name eq '$group_name'" \
         | c8y bulkoperations create \
             --creationRampSec "1" \
             --startDate "5s" \
