@@ -14,6 +14,7 @@ env:
   C8Y_USERNAME: ${{ secrets.C8Y_USERNAME }}
   C8Y_PASSWORD: ${{ secrets.C8Y_PASSWORD }}
   KEEP_LAST: ${{ github.event.inputs.keep_last }}
+  DEVICE_DEPLOYMENT_GROUP: ${{ github.event.inputs.device_deploy_group }}
 
 on:
   workflow_dispatch:
@@ -28,6 +29,12 @@ on:
         required: false
         default: false
         type: boolean
+
+      device_deploy_group:
+        description: 'Deployment group name'
+        required: false
+        default: 'canary_10'
+        type: string
 
   release:
     types: [released]  
@@ -92,7 +99,7 @@ jobs:
         run: |
           cd ./2022-01-27/02-cicd
           LATEST_VERSION=$( c8y software versions list --software python3-c8yda --includeAll --select "*.version" -o csv | sort -Vr | head -1 )
-          ./install-software.sh "python3-c8ylp" "$LATEST_VERSION" < /dev/null
+          ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "python3-c8ylp" "$LATEST_VERSION" < /dev/null
         shell: bash
 
       - uses: actions/upload-artifact@v2
