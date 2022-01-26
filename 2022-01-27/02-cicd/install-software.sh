@@ -3,6 +3,11 @@
 # bash options to fail fast
 set -euo pipefail
 
+if ! declare -p GITHUB_RUN_NUMBER 2>/dev/null; then
+    GITHUB_RUN_NUMBER=0
+fi
+
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 pushd "$SCRIPT_DIR" || exit 1
 
@@ -70,7 +75,7 @@ install_software () {
     {
         note: 'This was deployed from the CI/CD runner',
         operationPrototype: {
-            description: 'CICD [group=$group_name]: Update software to: $name (version $version)',
+            description: 'CICD [id=$GITHUB_RUN_NUMBER, group=$group_name]: Update software to: $name (version $version)',
             c8y_SoftwareList: [
                 {name: '$name', version: '$version'}
             ]
@@ -82,7 +87,7 @@ install_software () {
 
     bulk_operation=$(
         c8y smartgroups create \
-            --name "deployment: $group_name - $LATEST_VERSION" \
+            --name "CICD deployment [id=$GITHUB_RUN_NUMBER, group=$group_name]" \
             --invisible --query "c8y_DeploymentGroup.name eq '$group_name'" \
         | c8y bulkoperations create \
             --creationRampSec "1" \
