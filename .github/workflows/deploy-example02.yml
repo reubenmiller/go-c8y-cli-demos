@@ -106,4 +106,4 @@ jobs:
         if: always()
         with:
           name: upload activity logs
-          path: ${{ env.C8Y_SETTINGS_ACTIVITYLOG_PATH }}/c8y.activitylog*.json
+          path: $HOME/c8y.activitylog*.json
