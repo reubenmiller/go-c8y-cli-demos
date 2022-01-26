@@ -1,0 +1,22 @@
+{
+    "version": "1",
+    "definitions": [
+        {
+            "name": "linuxboxes",
+            "priority": 400,
+            "contentType": "",
+            "self": "",
+            "type": "linuxboxA",
+            "fragments": ["c8y_IsDevice"],
+            "columns": [
+                "id",
+                "name",
+                "type",
+                "owner",
+                "lastUpdated",
+                "c8y_Hardware.serialNumber",
+                "c8y_Availability.status"
+            ]
+        }
+    ]
+}

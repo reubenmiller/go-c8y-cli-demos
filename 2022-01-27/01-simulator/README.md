@@ -32,37 +32,22 @@ c8y devices list --name "device_*" --pageSize 200 --cache --select id,name,type 
 
 ## Generate a list of measurements
 
-```
-while true; do
-    cat device.list | c8y measurements create --template measurement.jsonnet -f --delay 2s --workers 10 --delay 5s
-done
+```sh
+c8y util repeatfile device.list --infinite | c8y measurements create --template measurement.jsonnet -f --delay 2s --workers 10 --delay 5s
 ```
 
 
 ```
-measurement_pipe=/tmp/measurement_stream
-
-if [[ ! -p "$measurement_pipe" ]]; then
-    mkfifo "$measurement_pipe"
-fi
-
-run_sim () {
-    i=0
-    while true
-    do
-        echo "Run: $((i++))"
-        cat device.list | tee -a "$measurement_pipe"
-        sleep 1s
-    done
-}
 
 start_worker_1 () {
     echo "Starting worker 1"
-    tail -f "$measurement_pipe" | c8y measurements create --template measurement.jsonnet -f --delay 2s --workers 10 --delay 5s
+    c8y util repeatfile device.list --infinite \
+    | c8y measurements create --template measurement.jsonnet -f --delay 2s --workers 10 --delay 5s
 }
 
 ```
 
+echo -n "" > myfile
 
 
 ## Create new software
@@ -71,3 +56,9 @@ start_worker_1 () {
 c8y software create --name vim | c8y software versions create --version 1.0.1
 ```
 
+## Retry a failed operation
+
+```
+c8y operations list --device device_011 --status FAILED -p 1 --dateFrom -1h --revert --view copy_operation \
+| c8y operations create --template "input.value" --device device_012
+```

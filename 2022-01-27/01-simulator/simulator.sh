@@ -1,14 +1,10 @@
 #!/bin/bash
 
-measurement_pipe=/tmp/measurement_stream
-DEVICE_LIST="device.list"
 export C8Y_SETTINGS_DEFAULTS_FORCE=true
-TOTAL_DEVICES=10
-WORKERS=10
 
-if [[ ! -p "$measurement_pipe" ]]; then
-    mkfifo "$measurement_pipe"
-fi
+DEVICE_LIST="device.list"
+TOTAL_DEVICES=100
+WORKERS=50
 
 setup () {
     c8y util repeat --input "device" --format "%s_%03s" "$TOTAL_DEVICES" |
@@ -21,40 +17,40 @@ cleanup () {
     c8y devices list --includeAll --name "device_*" --owner "demo01" | c8y devices delete --workers 5 --delay 100ms --progress
 }
 
-run_sim () {
-    i=1
-    while true
-    do
-        echo "Run: $((i++))"
-        cat "$DEVICE_LIST" | tee -a "$measurement_pipe"
-        sleep 10s
-    done
+#
+# Measurement creation
+#
+start_measurements () {
+    echo "Creating measurements"
+    c8y util repeatfile --infinite "$DEVICE_LIST" \
+    | c8y measurements create --template measurement.jsonnet --workers "$WORKERS" --delay 10000ms --select "source.id,**.value,**.unit" \
+    | c8y util repeat --randomSkip 0.7 \
+    | c8y events create --text "Example text" --type "c8y_RandomEvent" --workers "$WORKERS" --delay 5s
 }
 
-start_worker_1 () {
-    echo "Starting worker 1"
-    tail -f "$measurement_pipe" | c8y measurements create --template measurement.jsonnet --workers $WORKERS --delay 1000ms --select "source.id,**.value,**.unit"
-}
-
-start_operations_worker () {
-    echo "Starting c8y_Restart operations worker"
+#
+# Operation handler simulators
+#
+start_operations_listener () {
+    echo "Starting operations listener"
     c8y operations subscribe --duration 1h --actionTypes CREATE |
-        grep --line-buffered "c8y_Restart" |
         c8y operations update --status EXECUTING --delayBefore 750ms --workers $WORKERS |
         c8y operations update --status SUCCESSFUL --delayBefore 5s --workers $WORKERS
 }
 
 create_restart_operation () {
-    tail -f "$measurement_pipe" |
-        head -$TOTAL_DEVICES |
-        c8y operations create --description "Restart device" --template "{c8y_Restart: {}}"
+    c8y operations create \
+        --description "Restart device" \
+        --template "{c8y_Restart: {}}" < "$DEVICE_LIST"
 }
 
-start_software_listener () {
+
+start_software_listener_realtime () {
     #
     # Note: use line-buffered option in grep otherwise the pipeline will be buffered
     #
-    echo "Starting software operations worker"
+    echo "Starting software operations listener (realtime)"
+        # c8y devices update --template "{c8y_SoftwareList: [x for x in input.value.c8y_SoftwareList if x.action == 'install']}" --delayBefore 5s --workers $WORKERS |
 
     c8y operations subscribe --duration 1h --actionTypes CREATE |
         grep --line-buffered "c8y_SoftwareList" |
@@ -64,8 +60,9 @@ start_software_listener () {
         c8y operations update --status SUCCESSFUL --workers 10 --workers 10
 }
 
-start_software_handler () {
-    echo "Starting software operations worker"
+start_software_listener_poll () {
+    local sleep_interval=${1:-"5s"}
+    echo "Starting software operations listener (poll)"
     while true;
     do
         c8y operations list --fragmentType c8y_SoftwareList --pageSize 100 --delay 2s --status PENDING |
@@ -75,20 +72,28 @@ start_software_handler () {
             c8y operations list --fragmentType "c8y_SoftwareList" --pageSize 1 --status EXECUTING |
             c8y operations update --status SUCCESSFUL --workers $WORKERS
         
-        sleep 5s
+        sleep "$sleep_interval"
     done
 }
 
 create_software_operation () {
     local suffix
     suffix="${1:-}"
-    tail -f "$measurement_pipe" |
-        head -$TOTAL_DEVICES |
-        c8y operations create --description "Set software list" --template "./software.operation.jsonnet" --templateVars "suffix=$suffix"
+    c8y operations create \
+        --description "Set software list" \
+        --template "./software.operation.jsonnet" \
+        --templateVars "suffix=$suffix" < "$DEVICE_LIST" 
 }
 
 cleanup_operations () {
     echo "Cleaning up operations"
     c8y operations list --status EXECUTING --includeAll | c8y operations update --status SUCCESSFUL
     c8y operations list --status PENDING --includeAll | c8y operations update --status SUCCESSFUL
+}
+
+show_stats () {
+    echo "c8y activitylog list --dateFrom -1h --select path,responseTimeMS -o csvheader --filter \"method like POST\" | tr ',' '\t' | datamash groupby 1 -R 2 -H min 2 max 2 mean 2 --sort"
+    echo ""
+
+    c8y activitylog list --dateFrom -1h --select path,responseTimeMS -o csvheader --filter "method like POST" | tr "," "\t" | datamash groupby 1 -R 2 -H min 2 max 2 mean 2 --sort
 }

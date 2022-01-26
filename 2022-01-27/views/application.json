@@ -1,0 +1,30 @@
+{
+    "version": "1",
+    "definitions": [
+        {
+            "name": "custom_microservice",
+            "priority": 200,
+            "self": "application",
+            "type": "MICROSERVICE",
+            "columns": [
+                "id",
+                "name",
+                "type",
+                "manifest.version",
+                "availability",
+                "roles.0"
+            ]
+        },
+        {
+            "name": "application",
+            "priority": 400,
+            "self": "application",
+            "columns": [
+                "id",
+                "name",
+                "type",
+                "availability"
+            ]
+        }
+    ]
+}

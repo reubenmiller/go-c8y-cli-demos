@@ -1,0 +1,17 @@
+{
+    "version": "1",
+    "definitions": [
+        {
+            "name": "copy_operation",
+            "priority": 500,
+            "contentType": "vnd.com.nsn.cumulocity.operation",
+            "columns": [
+                "**",
+                "!id",
+                "!status",
+                "!creationTime",
+                "!failureReason"
+            ]
+        }
+    ]
+}
