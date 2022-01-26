@@ -91,7 +91,7 @@ install_software () {
             --invisible \
             --query "c8y_DeploymentGroup.name eq '$group_name'" \
         | c8y bulkoperations create \
-            --creationRampSec "1" \
+            --creationRampSec "0.25" \
             --startDate "5s" \
             --template "$bulk_operation_template"
     )
