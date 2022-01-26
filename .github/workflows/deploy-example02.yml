@@ -98,8 +98,7 @@ jobs:
       - name: Install new version to software (canary)
         run: |
           cd ./2022-01-27/02-cicd
-          LATEST_VERSION=$( c8y software versions list -n --software python3-c8ylp --includeAll --select "*.version" -o csv | sort -Vr | head -1 )
-          ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "python3-c8ylp" "$LATEST_VERSION" < /dev/null
+          ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "python3-c8ylp" < /dev/null
         shell: bash
 
       - uses: actions/upload-artifact@v2
