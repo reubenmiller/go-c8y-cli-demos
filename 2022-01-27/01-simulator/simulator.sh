@@ -57,7 +57,8 @@ start_software_listener_realtime () {
         c8y operations update --status EXECUTING --delay 750ms --workers 10 |
         c8y devices update --template "{c8y_SoftwareList: input.value.c8y_SoftwareList}" --delayBefore 5s --workers $WORKERS |
         c8y operations list --fragmentType "c8y_SoftwareList" --pageSize 1 --status EXECUTING --workers $WORKERS |
-        c8y operations update --status SUCCESSFUL --workers 10 --workers 10
+        c8y operations update --template "random.operation.error.jsonnet" --templateVars "threshold=50" --workers 10
+        # c8y operations update --status SUCCESSFUL --workers 10
 }
 
 start_software_listener_poll () {
