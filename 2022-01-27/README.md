@@ -34,8 +34,6 @@
 
 ## Main features
 
-
-
 ### Controlling the output data : Shaping the output data
 
 * select and output
@@ -54,7 +52,7 @@
 
 ### Template language
 
-* --data
+* --data (shorthandle json)
 * --template (jsonnet)
 
 ### Activity log
@@ -77,28 +75,19 @@ c8y activitylog list --dateFrom -30min --filter "path like *operation*" --filter
 seq -f "device_%03g" 10 | c8y devices create
 ```
 
-### Other tools
+### Other tooling
 
 #### Play nice with other tooling
 
-    ```sh
-    curl -H "$C8Y_HEADER" "$C8Y_HOST/inventory/managedObjects"
-    ```
+```sh
+curl -H "$C8Y_HEADER" "$C8Y_HOST/inventory/managedObjects"
+```
 
-
-## Advanced features
-
-* --includeAll
-
-* Get device totals
-    * --withTotalPages --pageSize 1 `-t -p1`
-
-* importing data
 
 
 ### Aliases
 
-* Currently non tab completion
+* Create command shortcuts for common commands (though aliases do not have tab completion)
 
 
 ### Local caching
@@ -108,15 +97,6 @@ seq -f "device_%03g" 10 | c8y devices create
 * Reduce number of scripts
 
 * Dedupe when creating devices
-
-    ```
-    export 
-    ```
-
-    ```
-    c8y cache delete
-    c8y cache renew
-    ```
 
 
 ## Running the demos
@@ -130,27 +110,70 @@ export C8Y_HOME="$( pwd )"
 
 1. Create a set of devices
 
+    ```sh
+    source 01-simulator/simulator.sh
+
+    # create the devices
+    setup
+    ```
 
 2. Create a generic software listener (c8y_Restart)
 
+    ```sh
+    start_operations_listener
+    ```
+
 3. Manually create an operation
 
-```
-c8y operations list --device device_011 --status FAILED -p 1 --dateFrom -1h --revert --view copy_operation \
-| c8y operations create --template "input.value" --device device_012
-```
+    ```sh
+    create_software_operation
+    ```
 
-## Not covered today
+4. Copy an existing operation to re-run it on the same device or another one
 
-* Workers
-* 
+    ```
+    c8y operations list --device device_001 --status FAILED -p 1 --dateFrom -1h --revert --view copy_operation \
+    | c8y operations create --template "input.value" --device device_011 \
+    | c8y operations wait
+    ```
 
 
-## Roadmap
+### CI/CD Pipeline
+
+1. Setup the simulated operation listener
+
+    ```sh
+    source 01-simulator/simulator.sh
+
+    # create the devices
+    setup
+
+    # start listener
+    start_software_listener_realtime
+    ```
+
+2. Trigger workflow manually
+
+    ```sh
+    gh workflow run deploy-example02 -f keep_last=3 -f deploy_ms=false
+    ```
+
+3. Check the progress of the workflow
+
+    ```sh
+    gh run list --workflow=deploy-example02.yml --limit 5
+    ```
+
+4. Check the output of the workflow and the bulk operation overview in Cumulocity Device Manager application
+
+
+
+## Road map
+
+The following is a hint at some of the features on the road map. But if you other suggestions let me know.
 
 * Implementation of notifications 2.0 api
 * Upload/Download progress bars
 * Plugins?
-
 * Output templates
-* Extend pipe model to
+* Piping model improvements (option to set all flags via piped input)

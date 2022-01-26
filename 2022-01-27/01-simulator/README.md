@@ -37,17 +37,13 @@ c8y util repeatfile device.list --infinite | c8y measurements create --template 
 ```
 
 
-```
-
+```sh
 start_worker_1 () {
     echo "Starting worker 1"
     c8y util repeatfile device.list --infinite \
     | c8y measurements create --template measurement.jsonnet -f --delay 2s --workers 10 --delay 5s
 }
-
 ```
-
-echo -n "" > myfile
 
 
 ## Create new software
