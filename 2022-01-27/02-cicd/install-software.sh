@@ -17,7 +17,7 @@ log() { echo "$@" 1>&2; }
 monitor_bulk_operation () {
     local bulk_operation="$1"
     local timeout_limit
-    timeout_limit=$(( $(date +%s) + 60 ))
+    timeout_limit=$(( $(date +%s) + 300 ))
 
     while true; do
         #
@@ -73,7 +73,7 @@ install_software () {
 
     local bulk_operation_template="
     {
-        note: 'This was deployed from the CI/CD runner',
+        note: 'This was deployed from the CI/CD runner: run=$GITHUB_RUN_NUMBER',
         operationPrototype: {
             description: 'CICD [id=$GITHUB_RUN_NUMBER, group=$group_name]: Update software to: $name (version $version)',
             c8y_SoftwareList: [

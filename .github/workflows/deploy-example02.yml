@@ -49,6 +49,7 @@ jobs:
         run: |
           echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
 
+
       - name: Install dependencies
         run: |
           # Manually download
@@ -57,29 +58,35 @@ jobs:
           chmod +x "$HOME/.local/bin/c8y"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-          # Using homewbrew
-          #brew tap reubenmiller/go-c8y-cli
-          #brew update
-          #brew install go-c8y-cli
 
       - name: Deploy web applications
         run: |
           # chmod +x ./2022-01-27/02-cicd/deploy-webapps.sh
           ./2022-01-27/02-cicd/deploy-webapps.sh "$KEEP_LAST" < /dev/null
 
+
       - name: Deploy microservices
         if: ${{ github.event.inputs.deploy_ms && github.event.inputs.deploy_ms != 'false' }}
         run: |
           c8y microservices create --file ./2022-01-27/02-cicd/helloworld.zip --availability PRIVATE
         shell: bash
-      
+
+
+      - name: Deploy configuration to repository
+        run: |
+          cd ./2022-01-27/02-cicd/config
+          ./deploy-config.sh < /dev/null
+        shell: bash
+
+
       - name: Deploy software to repository
-        env:
-          SOFTWARE_VERSION: ${{ steps.date.outputs.date }}
         run: |
           cd ./2022-01-27/02-cicd
           name=python3-c8ylp
-          deb_file="python3-c8ylp-2.0.0-$SOFTWARE_VERSION.deb"
+          version=$(date +'%Y%m%d%H%M%S')
+          deb_file="python3-c8ylp-2.0.0-$version.deb"
+
+          echo "Faking a new binary file version: $deb_file"
           cp python3-c8ylp-2.0.0.deb "$deb_file"
 
           # Create software (if it does not exist)
@@ -89,23 +96,20 @@ jobs:
           c8y software versions create -n --software "$name" --file "$deb_file"
         shell: bash
 
-      - name: Deploy configuration to repository
-        run: |
-          cd ./2022-01-27/02-cicd/config
-          ./deploy-config.sh < /dev/null
-        shell: bash
 
       - name: Install new version to software (canary)
         run: |
           cd ./2022-01-27/02-cicd
           ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "python3-c8ylp" < /dev/null
         shell: bash
-      
+
+
       - name: Install new version to software remaining devices (main)
         run: |
           cd ./2022-01-27/02-cicd
           ./install-software.sh "main" "python3-c8ylp" < /dev/null
         shell: bash
+
 
       - uses: actions/upload-artifact@v2
         if: always()
