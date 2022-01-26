@@ -11,8 +11,6 @@
             "columns": [
                 "id",
                 "name",
-                "type",
-                "owner",
                 "c8y_DeploymentGroup.*",
                 "lastUpdated",
                 "c8y_Hardware.serialNumber",
