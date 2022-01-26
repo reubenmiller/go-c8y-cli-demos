@@ -4,7 +4,7 @@ env:
   # gh settings
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-  C8Y_SETTINGS_ACTIVITYLOG_PATH: $HOME
+  C8Y_SETTINGS_ACTIVITYLOG_PATH: $GITHUB_WORKSPACE
 
   #
   # c8y settings
@@ -100,9 +100,15 @@ jobs:
           cd ./2022-01-27/02-cicd
           ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "python3-c8ylp" < /dev/null
         shell: bash
+      
+      - name: Install new version to software remaining devices (main)
+        run: |
+          cd ./2022-01-27/02-cicd
+          ./install-software.sh "main" "python3-c8ylp" < /dev/null
+        shell: bash
 
       - uses: actions/upload-artifact@v2
         if: always()
         with:
           name: upload activity logs
-          path: $HOME/c8y.activitylog*.json
+          path: c8y.activitylog*.json
