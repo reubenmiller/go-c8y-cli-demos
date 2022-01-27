@@ -14,7 +14,7 @@ setup () {
 }
 
 cleanup () {
-    c8y devices list --includeAll --name "device_*" --owner "demo01" | c8y devices delete --workers 5 --delay 100ms --progress
+    c8y devices list --includeAll --name "device_*" | c8y devices delete --workers 5 --delay 100ms --progress
 }
 
 #
