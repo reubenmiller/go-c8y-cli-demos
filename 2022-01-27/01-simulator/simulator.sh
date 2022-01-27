@@ -37,7 +37,8 @@ start_measurements_sine () {
     python3 waveform.py 1 \
     | c8y measurements create \
         --device "device_001" \
-        --template "input.value"
+        --template "input.value" \
+        --select "id,time,type,**.value"
 }
 
 #
