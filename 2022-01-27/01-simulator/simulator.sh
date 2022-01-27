@@ -28,6 +28,19 @@ start_measurements () {
     | c8y events create --text "Example text" --type "c8y_RandomEvent" --workers "$WORKERS" --delay 5s
 }
 
+start_measurements_sine () {
+    #
+    # Use python to generate the signal and pass it to c8y to create
+    # the measurement (with the timestamp)
+    # Requires python "numpy". Install using "pip3 install numpy"
+    #
+    python3 signal.py 1 \
+    | c8y measurements create \
+        --device "device_001" \
+        --template "input.value" \
+        --time 0s
+}
+
 #
 # Operation handler simulators
 #
