@@ -34,11 +34,10 @@ start_measurements_sine () {
     # the measurement (with the timestamp)
     # Requires python "numpy". Install using "pip3 install numpy"
     #
-    python3 signal.py 1 \
+    python3 waveform.py 1 \
     | c8y measurements create \
         --device "device_001" \
-        --template "input.value" \
-        --time 0s
+        --template "input.value"
 }
 
 #
