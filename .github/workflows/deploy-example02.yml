@@ -12,7 +12,8 @@ env:
   C8Y_HOST: ${{ secrets.C8Y_HOST }}
   C8Y_TENANT: ${{ secrets.C8Y_TENANT }}
   C8Y_USERNAME: ${{ secrets.C8Y_USERNAME }}
-  C8Y_PASSWORD: ${{ secrets.C8Y_PASSWORD }}
+  # Use single for the password to prevent any expansion problems with special chars like "#"
+  C8Y_PASSWORD: '${{ secrets.C8Y_PASSWORD }}'
   KEEP_LAST: ${{ github.event.inputs.keep_last }}
   DEVICE_DEPLOYMENT_GROUP: ${{ github.event.inputs.device_deploy_group }}
 
@@ -27,7 +28,7 @@ on:
       deploy_ms:
         description: 'Deploy microservice?'
         required: false
-        default: false
+        default: 'false'
         type: boolean
 
       device_deploy_group:
