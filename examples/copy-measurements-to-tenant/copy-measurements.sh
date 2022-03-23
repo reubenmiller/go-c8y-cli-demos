@@ -2,6 +2,9 @@
 ####################################################################################
 # Copy measurements from a source tenant to a destination tenant processing one
 # device at a time
+#
+# Author: Reuben Miller
+# Date: 2022-03-23
 ####################################################################################
 
 SESSION_DST=
