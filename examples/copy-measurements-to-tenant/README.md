@@ -35,7 +35,7 @@ Please read the warnings before using this script.
     c8y sessions get --select path -o csv
     ```
 
-2. Either checkout this repository, or just copy the script contents to a file locally
+2. Either checkout this repository, or just copy the [copy-measurements.sh](./copy-measurements.sh) script contents to a file locally
 
     ```sh
     chmod +x copy-measurements.sh
