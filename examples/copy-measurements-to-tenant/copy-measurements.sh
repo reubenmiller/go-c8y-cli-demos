@@ -69,6 +69,7 @@ if [[ -z "$SESSION_DST" ]]; then
     exit 1
 fi
 
+
 #
 # Settings to control local client cache, so that we can reduce load on the servers.
 # If the script is cancelled, then the same commands should not be repeated as it will get the
@@ -77,6 +78,16 @@ fi
 export C8Y_SETTINGS_CACHE_METHODS="GET PUT POST DELETE"
 export C8Y_SETTINGS_CACHE_TTL="7d"
 
+
+TENANT_SRC="$(c8y sessions get --select host,tenant -o csv)"
+TENANT_DST="$(c8y sessions get --select host,tenant -o csv --session "$SESSION_DST" )"
+
+#
+# Check that the user has not accidentally set the same tenant as source and destination
+if [[ "$TENANT_SRC" == "$TENANT_DST" ]]; then
+  echo "Source and destination tenant are the same!!! Aborting"
+  exit 2
+fi
 
 echo "Current (source) tenant: $(c8y sessions get --select host,tenant -o json -c)"
 
