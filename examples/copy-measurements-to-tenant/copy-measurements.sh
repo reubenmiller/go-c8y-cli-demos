@@ -1,9 +1,7 @@
 #!/bin/bash
 ####################################################################################
-# Copy measurements from a source tenant to a target tenant
-#
-#
-#
+# Copy measurements from a source tenant to a destination tenant processing one
+# device at a time
 ####################################################################################
 
 SESSION_DST=
