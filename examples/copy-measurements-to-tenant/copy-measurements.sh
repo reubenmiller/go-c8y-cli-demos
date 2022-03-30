@@ -10,19 +10,24 @@
 SESSION_DST=
 WORKERS=5
 WORKER_DELAY="100ms"
+DATE_FROM="-365d"
+DATE_TO="0d"
+DEVICES=()
 
 show_usage () {
     echo ""
     echo "Usage:"
-    echo "    $0 --destination <session_config> [--workers <number>] [--delay <duration>]"
+    echo "    $0 --destination <session_config> [--workers <number>] [--delay <duration>] [--dateFrom <date|relative>] [--dateTo <date|relative>] <DEVICE> [...DEVICE]"
     echo ""
-    echo "Example"
+    echo "Example 1: Copy all measurements (since 1 year) for a single device"
     echo ""
-    echo "    $0 --destination targetTenantConfig.json"
+    echo "    $0 --destination targetTenantConfig.json 12345"
+    echo ""
+    echo "Example 2: Only copy devices with ids 11111 22222 33333 between dates 100d ago to 7 days ago"
+    echo ""
+    echo "    $0 --destination targetTenantConfig.json --dateFrom -100d --dateTo -7d 11111 22222 33333"
     echo ""
 }
-
-POSITIONAL_ARGS=()
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -34,6 +39,24 @@ while [[ $# -gt 0 ]]; do
     
     --workers)
       WORKERS="$2"
+      shift
+      shift
+      ;;
+    
+    --devices)
+      DEVICES+=("$2")
+      shift
+      shift
+      ;;
+    
+    --dateFrom)
+      DATE_FROM="$2"
+      shift
+      shift
+      ;;
+    
+    --dateTo)
+      DATE_TO="$2"
       shift
       shift
       ;;
@@ -55,14 +78,11 @@ while [[ $# -gt 0 ]]; do
       ;;
 
     *)
-      POSITIONAL_ARGS+=("$1")
+      DEVICES+=("$1")
       shift
       ;;
   esac
 done
-
-set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
-
 
 if [[ -z "$SESSION_DST" ]]; then
     echo "Missing required parameter '--destination <session_config>'"
@@ -70,6 +90,11 @@ if [[ -z "$SESSION_DST" ]]; then
     exit 1
 fi
 
+if [[ "${#DEVICES[@]}" -eq 0 ]]; then
+  echo "At least 1 device id or name needs to be provided as a positional argument"
+  show_usage
+  exit 1
+fi
 
 #
 # Settings to control local client cache, so that we can reduce load on the servers.
@@ -116,7 +141,7 @@ while read -r device ; do
     
     # Copy measurements from source tenant to destination tenant
     echo "$device" \
-    | c8y measurements list --includeAll --cache --select '!id,**' \
+    | c8y measurements list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,**' \
     | c8y measurements create \
         --device "$dst_device_id" \
         --template "input.value" \
@@ -129,4 +154,4 @@ while read -r device ; do
         --cache
 
 # Below controls which devices you want to move the measurements from. You can customize the query to anything you want
-done < <( c8y devices list --pageSize 100 )
+done < <( printf "%s\n" "${DEVICES[@]}" | c8y devices get )
