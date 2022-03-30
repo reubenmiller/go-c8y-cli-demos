@@ -54,12 +54,6 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     
-    --devices)
-      DEVICES+=("$2")
-      shift
-      shift
-      ;;
-    
     --dateFrom)
       DATE_FROM="$2"
       shift
