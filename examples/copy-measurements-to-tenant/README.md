@@ -45,6 +45,35 @@ Please read the warnings before using this script.
 
 4. Execute the script
 
+    Example shows:
+
+        * Copying measurements between "2022-01-01" to "2022-03-31" for 4 devices with ids: 1111, 2222, 3333 and 4444
+
     ```sh
-    ./copy-measurements.sh --destination /home/user/my-destination-tenant.json
+    ./copy-measurements.sh --destination /home/user/my-destination-tenant.json --dateFrom "2022-01-01" --dateTo "2022-03-31" 1111 2222 3333 4444
     ```
+
+## Help
+
+```sh
+Usage:
+    ./examples/copy-measurements-to-tenant/copy-measurements.sh --destination <session_config> [--workers <number>] [--delay <duration>] [--dateFrom <date|relative>] [--dateTo <date|relative>] <DEVICE> [...DEVICE]
+
+Example 1: Copy all measurements (since 1 year) for a single device
+
+    ./examples/copy-measurements-to-tenant/copy-measurements.sh --destination targetTenantConfig.json 12345
+
+Example 2: Only copy devices with ids 11111 22222 33333 between dates 100d ago to 7 days ago
+
+    ./examples/copy-measurements-to-tenant/copy-measurements.sh --destination targetTenantConfig.json --dateFrom -100d --dateTo -7d 11111 22222 33333
+
+
+Arguments:
+
+  DEVICE : List of devices (as positional arguments)
+  --workers <int> : Number of concurrent workers to create the measurements
+  --destination <string> : Session destination where the measurements will be copied to
+  --dateFrom <date|relative_date> : Only include measurements from a specific date
+  --dateTo <date|relative_date> : Only include measurements to a specific date
+  --delay <interval> : Delay between after each concurrent worker. This is used to rate limit the workers (to protect the tenant)
+```

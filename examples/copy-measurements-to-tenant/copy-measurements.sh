@@ -27,6 +27,17 @@ show_usage () {
     echo ""
     echo "    $0 --destination targetTenantConfig.json --dateFrom -100d --dateTo -7d 11111 22222 33333"
     echo ""
+    echo ""
+    echo "Arguments:"
+    echo ""
+    echo "  DEVICE : List of devices (as positional arguments)"
+    echo "  --workers <int> : Number of concurrent workers to create the measurements"
+    echo "  --destination <string> : Session destination where the measurements will be copied to"
+    echo "  --dateFrom <date|relative_date> : Only include measurements from a specific date"
+    echo "  --dateTo <date|relative_date> : Only include measurements to a specific date"
+    echo "  --delay <interval> : Delay between after each concurrent worker. This is used to rate limit the workers (to protect the tenant)"
+    echo ""
+
 }
 
 while [[ $# -gt 0 ]]; do
