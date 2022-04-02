@@ -153,7 +153,7 @@ while read -r device ; do
     esac
 
     # Get the total amount of measurements in source tenant (for a sanity check)
-    total_measurements=$( c8y measurements list -n --device "$device_id" --cache --pageSize 1 --withTotalPages --select statistics.totalPages -o csv )
+    total_measurements=$( c8y measurements list -n --device "$device_id" --cache --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --pageSize 1 --withTotalPages --select statistics.totalPages -o csv )
     
     # Copy measurements from source tenant to destination tenant
     echo "$device" \
