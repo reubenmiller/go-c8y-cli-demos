@@ -19,18 +19,18 @@ show_usage () {
     echo "Usage:"
     echo "    $0 --destination <session_config> [--workers <number>] [--delay <duration>] [--dateFrom <date|relative>] [--dateTo <date|relative>] <DEVICE> [...DEVICE]"
     echo ""
-    echo "Example 1: Copy all measurements (since 1 year) for a single device"
+    echo "Example 1: Copy all measurements (since 1 year) for a single managed object"
     echo ""
     echo "    $0 --destination targetTenantConfig.json 12345"
     echo ""
-    echo "Example 2: Only copy devices with ids 11111 22222 33333 between dates 100d ago to 7 days ago"
+    echo "Example 2: Only copy measurements from managed objects ids 11111 22222 33333 between dates 100 days ago to 7 days ago"
     echo ""
     echo "    $0 --destination targetTenantConfig.json --dateFrom -100d --dateTo -7d 11111 22222 33333"
     echo ""
     echo ""
     echo "Arguments:"
     echo ""
-    echo "  DEVICE : List of devices (as positional arguments)"
+    echo "  DEVICE : List of device ids or names (as positional arguments)"
     echo "  --workers <int> : Number of concurrent workers to create the measurements"
     echo "  --destination <string> : Session destination where the measurements will be copied to"
     echo "  --dateFrom <date|relative_date> : Only include measurements from a specific date"
@@ -131,15 +131,26 @@ while read -r device ; do
     echo "Copying measurements from device [id=${device_id}, name=${device_name}]"
 
     #
-    # Check if the device exists already nad if not create it by copying the managed object (except for the id, and lastUpdated fields)
+    # Check if the managed object exists already and if not create it by copying the managed object (except for the id, and lastUpdated fields)
     # Store the destination device id for later usage.
     #
-    dst_device_id=$(
-        c8y devices get -n --id "$device_name" --session "$SESSION_DST" --silentStatusCodes 404 --select id -o csv || {
-            echo "Creating device [name=$device_name] in destination tenant"
-            c8y devices create -n --session "$SESSION_DST" --template "$device + {id:: '', lastUpdated:: ''}" --select id -o csv
-        }
-    )
+    dst_device_id=$( c8y inventory find -n --session "$SESSION_DST" --query "name eq '$device_name'" --orderBy name --pageSize 2 --select id -o csv )
+    dst_match_count=$(echo -n "$dst_device_id" | wc -l | xargs)
+
+    case "$dst_match_count" in
+      0)
+        echo "Creating device [name=$device_name] in destination tenant"
+        dst_device_id=$( c8y inventory create -n --session "$SESSION_DST" --template "$device + {id:: '', lastUpdated:: ''}" --select id -o csv --force )
+        ;;
+      1)
+        echo "Device [name=$device_name] in destination tenant"
+        dst_device_id=$( c8y inventory update -n --session "$SESSION_DST" --id "$dst_device_id" --template "$device + {id:: '', lastUpdated:: ''}" --select id -o csv --force)
+        ;;
+      *)
+        echo "Too many devices found matching the [total=$dst_match_count, name=$device_name] in destination tenant. Skipping measurement copy as it is not sure which is the correct destination device"
+        continue
+        ;;
+    esac
 
     # Get the total amount of measurements in source tenant (for a sanity check)
     total_measurements=$( c8y measurements list -n --device "$device_id" --cache --pageSize 1 --withTotalPages --select statistics.totalPages -o csv )
