@@ -126,16 +126,16 @@ echo "Current (source) tenant: $(c8y sessions get --select host,tenant -o json -
 # Loop through a list of devices, moving the measurements from the current tenant to the destination tenant
 #
 while read -r device ; do
-    device_id=$( echo "$device" | c8y util show --select id -o csv )
-    device_name=$( echo "$device" | c8y util show --select name -o csv )
+    device_id=$( echo "$device" | c8y util show --select id -o csv | xargs )
+    device_name=$( echo "$device" | c8y util show --select name -o csv | xargs )
     echo "Copying measurements from device [id=${device_id}, name=${device_name}]"
 
     #
     # Check if the managed object exists already and if not create it by copying the managed object (except for the id, and lastUpdated fields)
     # Store the destination device id for later usage.
     #
-    dst_device_id=$( c8y inventory find -n --session "$SESSION_DST" --query "name eq '$device_name'" --orderBy name --pageSize 2 --select id -o csv )
-    dst_match_count=$(echo -n "$dst_device_id" | wc -l | xargs)
+    dst_device_id="$( c8y inventory find -n --session "$SESSION_DST" --query "name eq '$device_name'" --orderBy name --pageSize 2 --select id -o csv )"
+    dst_match_count="$(echo "$dst_device_id" | grep "^[0-9]\+$" | wc -l | xargs)"
 
     case "$dst_match_count" in
       0)
@@ -143,11 +143,11 @@ while read -r device ; do
         dst_device_id=$( c8y inventory create -n --session "$SESSION_DST" --template "$device + {id:: '', lastUpdated:: ''}" --select id -o csv --force )
         ;;
       1)
-        echo "Device [name=$device_name] in destination tenant"
+        echo "Updating device [name=$device_name] in destination tenant"
         dst_device_id=$( c8y inventory update -n --session "$SESSION_DST" --id "$dst_device_id" --template "$device + {id:: '', lastUpdated:: ''}" --select id -o csv --force)
         ;;
       *)
-        echo "Too many devices found matching the [total=$dst_match_count, name=$device_name] in destination tenant. Skipping measurement copy as it is not sure which is the correct destination device"
+        echo "Too many devices found matching [total=$dst_match_count, name=$device_name] in destination tenant. Skipping copy action as it is not sure which is the correct destination device"
         continue
         ;;
     esac
