@@ -13,6 +13,7 @@ WORKER_DELAY="100ms"
 DATE_FROM="-365d"
 DATE_TO="0d"
 DEVICES=()
+TIMEOUT="15m"
 
 show_usage () {
     echo ""
@@ -146,7 +147,7 @@ while read -r device ; do
     
     # Copy measurements from source tenant to destination tenant
     echo "$device" \
-    | c8y measurements list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,**' \
+    | c8y measurements list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,**' --timeout "$TIMEOUT" \
     | c8y measurements create \
         --device "$dst_device_id" \
         --template "input.value" \
@@ -156,6 +157,8 @@ while read -r device ; do
         --delay "$WORKER_DELAY" \
         --progress \
         --confirmText "Do you want to copy $total_measurements measurements to this device" \
+        --timeout "$TIMEOUT" \
+        --abortOnErrors 1000000 \
         --cache
 
 # Below controls which devices you want to move the measurements from. You can customize the query to anything you want
