@@ -8,11 +8,9 @@ env:
 
   #
   # c8y settings
-  C8Y_SETTINGS_CI: true
   C8Y_HOST: ${{ secrets.C8Y_HOST }}
-  C8Y_TENANT: ${{ secrets.C8Y_TENANT }}
   C8Y_USERNAME: ${{ secrets.C8Y_USERNAME }}
-  # Use single for the password to prevent any expansion problems with special chars like "#"
+  # Use single quotes for the password to prevent any expansion problems with special chars like "#"
   C8Y_PASSWORD: '${{ secrets.C8Y_PASSWORD }}'
   KEEP_LAST: ${{ github.event.inputs.keep_last }}
   DEVICE_DEPLOYMENT_GROUP: ${{ github.event.inputs.device_deploy_group }}
@@ -28,7 +26,7 @@ on:
       deploy_ms:
         description: 'Deploy microservice?'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
       device_deploy_group:
@@ -44,27 +42,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - uses: reubenmiller/setup-go-c8y-cli@main
 
       - name: Build info
         run: |
           echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
 
-
-      - name: Install dependencies
-        run: |
-          # Manually download
-          gh release download -R reubenmiller/go-c8y-cli --pattern c8y_linux_amd64 --dir "$HOME/.local/bin"
-          mv "$HOME/.local/bin/c8y_linux_amd64" "$HOME/.local/bin/c8y"
-          chmod +x "$HOME/.local/bin/c8y"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
-
       - name: Deploy web applications
         run: |
           # chmod +x ./2022-01-27/02-cicd/deploy-webapps.sh
           ./2022-01-27/02-cicd/deploy-webapps.sh "$KEEP_LAST" < /dev/null
-
 
       - name: Deploy microservices
         if: ${{ github.event.inputs.deploy_ms && github.event.inputs.deploy_ms != 'false' }}
@@ -72,13 +60,11 @@ jobs:
           c8y microservices create --file ./2022-01-27/02-cicd/helloworld.zip --availability PRIVATE
         shell: bash
 
-
       - name: Deploy configuration to repository
         run: |
           cd ./2022-01-27/02-cicd/config
           ./deploy-config.sh < /dev/null
         shell: bash
-
 
       - name: Deploy software to repository
         run: |
@@ -97,13 +83,11 @@ jobs:
           c8y software versions create -n --software "$name" --file "$deb_file"
         shell: bash
 
-
       - name: Install new version to software (canary)
         run: |
           cd ./2022-01-27/02-cicd
           ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "python3-c8ylp" < /dev/null
         shell: bash
-
 
       - name: Install new version to software remaining devices (main)
         run: |
@@ -111,8 +95,7 @@ jobs:
           ./install-software.sh "main" "python3-c8ylp" < /dev/null
         shell: bash
 
-
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: upload activity logs
