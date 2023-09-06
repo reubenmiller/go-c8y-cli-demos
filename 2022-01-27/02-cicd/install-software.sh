@@ -77,7 +77,7 @@ install_software () {
         operationPrototype: {
             description: 'CICD [id=$GITHUB_RUN_NUMBER, group=$group_name]: Update software to: $name (version $version)',
             c8y_SoftwareList: [
-                {name: '$name', version: '$version'}
+                {name: '$name', version: '$version::apt'}
             ]
         }
     }
@@ -89,7 +89,7 @@ install_software () {
         c8y smartgroups create \
             --name "CICD deployment [id=$GITHUB_RUN_NUMBER, group=$group_name]" \
             --invisible \
-            --query "c8y_DeploymentGroup.name eq '$group_name'" \
+            --query "type eq 'thin-edge.io' and c8y_DeploymentGroup.name eq '$group_name'" \
         | c8y bulkoperations create \
             --creationRampSec "0.25" \
             --startDate "5s" \
