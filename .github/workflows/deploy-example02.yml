@@ -51,7 +51,12 @@ jobs:
 
       - name: Deploy web applications
         run: |
-          ./2022-01-27/02-cicd/deploy-webapps.sh "$KEEP_LAST" < /dev/null
+          WEBAPP_NAME="mywebapp"
+          echo "[name=$WEBAPP_NAME] Deploying an web application (keeping only last $KEEP_LAST deployments)"
+          c8y applications createHostedApplication -n --file "$WEBAPP_NAME/" \
+              | c8y applications listApplicationBinaries -p 100 \
+              | head -n "-$KEEP_LAST" \
+              | c8y applications deleteApplicationBinary --application "$WEBAPP_NAME"
 
       - name: Deploy microservices
         if: ${{ github.event.inputs.deploy_ms && github.event.inputs.deploy_ms != 'false' }}
