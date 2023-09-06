@@ -77,7 +77,7 @@ install_software () {
         operationPrototype: {
             description: 'CICD [id=$GITHUB_RUN_NUMBER, group=$group_name]: Update software to: $name (version $version)',
             c8y_SoftwareUpdate: [
-                {name: '$name', version: '$version::apt'}
+                {name: '$name', version: '$version::apt', action: 'install'}
             ]
         }
     }
