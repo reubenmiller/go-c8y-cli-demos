@@ -76,7 +76,7 @@ install_software () {
         note: 'This was deployed from the CI/CD runner: run=$GITHUB_RUN_NUMBER',
         operationPrototype: {
             description: 'CICD [id=$GITHUB_RUN_NUMBER, group=$group_name]: Update software to: $name (version $version)',
-            c8y_SoftwareList: [
+            c8y_SoftwareUpdate: [
                 {name: '$name', version: '$version::apt'}
             ]
         }
