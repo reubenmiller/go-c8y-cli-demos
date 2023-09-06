@@ -85,13 +85,13 @@ jobs:
       - name: Install new version to software (canary)
         run: |
           cd ./2022-01-27/02-cicd
-          ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "python3-c8ylp" < /dev/null
+          ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "c8y-command-plugin" < /dev/null
         shell: bash
 
       - name: Install new version to software remaining devices (main)
         run: |
           cd ./2022-01-27/02-cicd
-          ./install-software.sh "main" "python3-c8ylp" < /dev/null
+          ./install-software.sh "main" "c8y-command-plugin" < /dev/null
         shell: bash
 
       - uses: actions/upload-artifact@v3
