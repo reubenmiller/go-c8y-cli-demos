@@ -9,7 +9,7 @@ env:
   #
   # c8y settings
   C8Y_HOST: ${{ secrets.C8Y_HOST }}
-  C8Y_USERNAME: ${{ secrets.C8Y_USERNAME }}
+  C8Y_USER: ${{ secrets.C8Y_USER }}
   # Use single quotes for the password to prevent any expansion problems with special chars like "#"
   C8Y_PASSWORD: '${{ secrets.C8Y_PASSWORD }}'
   KEEP_LAST: ${{ github.event.inputs.keep_last }}
@@ -47,11 +47,10 @@ jobs:
 
       - name: Build info
         run: |
-          echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+          echo "date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
       - name: Deploy web applications
         run: |
-          # chmod +x ./2022-01-27/02-cicd/deploy-webapps.sh
           ./2022-01-27/02-cicd/deploy-webapps.sh "$KEEP_LAST" < /dev/null
 
       - name: Deploy microservices
