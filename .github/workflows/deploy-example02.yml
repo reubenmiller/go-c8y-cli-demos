@@ -35,6 +35,12 @@ on:
         default: 'canary_10'
         type: string
 
+      simulate_error:
+        description: 'Simulate Deployment Error?'
+        required: false
+        default: false
+        type: boolean
+
   release:
     types: [released]  
 
@@ -88,6 +94,14 @@ jobs:
         shell: bash
 
       - name: Install new version to software (canary)
+        if: ${{ github.event.inputs.simulate_error && github.event.inputs.simulate_error == 'false' }}
+        run: |
+          cd ./2022-01-27/02-cicd
+          ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "c8y-command-plugin" < /dev/null
+        shell: bash
+
+      - name: Install new version to software (which will fail) (canary)
+        if: ${{ github.event.inputs.simulate_error && github.event.inputs.simulate_error != 'false' }}
         run: |
           cd ./2022-01-27/02-cicd
           ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "c8y-command-plugin" < /dev/null
