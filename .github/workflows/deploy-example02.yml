@@ -104,7 +104,7 @@ jobs:
         if: ${{ github.event.inputs.simulate_error && github.event.inputs.simulate_error != 'false' }}
         run: |
           cd ./2022-01-27/02-cicd
-          ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "c8y-command-plugin" < /dev/null
+          ./install-software.sh "$DEVICE_DEPLOYMENT_GROUP" "invalid-plugin" < /dev/null
         shell: bash
 
       - name: Install new version to software remaining devices (main)
