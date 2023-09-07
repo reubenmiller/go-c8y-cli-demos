@@ -102,7 +102,7 @@ install_software () {
     # Monitor bulk operation
     success_rate=$( monitor_bulk_operation "$bulk_operation" )
     if [[ "$success_rate" -lt 90 ]]; then
-        log "Bulk operation success rate is too low to continue: expected>=$success_rate, got=$success_rate"
+        log "Bulk operation success rate is too low to continue: expected>=90%, got=${success_rate}%"
 
         check_operation_failure_reasons "$bulk_operation"
 
