@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -e
+
+help() {
+    cat << EOT >&2
+Prepare a demo lab environment by creating multiple devices
+
+USAGE
+    c8y demo lab prepare [COUNT] [flags]
+
+ARGUMENTS
+    COUNT       Number of devices to create
+
+FLAGS
+    --prefix <string>       Prefix to be used in the device name
+
+EXAMPLES
+    c8y demo lab prepare 10
+    # Create 10 lab devices
+
+    c8y demo lab prepare 20 --prefix "foobar"
+    # Create 20 lab devices
+EOT
+}
+
+TOTAL_DEVICES=
+PREFIX="labdevice"
+ARGS=()
+FLAGS=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --prefix)
+            PREFIX="$2"
+            ;;
+        -h|--help)
+            help
+            exit 0
+            ;;
+        --*|-*)
+            # Collect flags which will be passed to c8y devices create
+            FLAGS+=("$1")
+            ;;
+        *)
+            if [ -z "$TOTAL_DEVICES" ]; then
+                TOTAL_DEVICES="$1"
+            else
+                # Collect arguments
+                ARGS+=("$1")
+            fi
+            ;;
+    esac
+    shift
+done
+
+set -- "${ARGS[@]}"
+
+c8y util repeat --nullInput --times "${TOTAL_DEVICES:-5}" --format "$PREFIX%s%03s" \
+| c8y devices create --template demo::device.jsonnet "${FLAGS[@]}"

@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/extensionCommands.json
+---
+version: v1
+group:
+  name: microservices
+  description: Cumulocity IoT Microservices health
+
+commands:
+  - name: health
+    description: Get a microservice health status
+    method: GET
+    path: /service/{id}/health
+    collectionProperty: "-"
+    pathParameters:
+      - name: id
+        type: microservicename
+        description: Microservice

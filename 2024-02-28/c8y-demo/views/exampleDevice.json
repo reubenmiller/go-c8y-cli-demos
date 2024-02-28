@@ -1,0 +1,20 @@
+{
+    "$schema": "https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/views.json",
+    "version": "v1",
+    "definitions": [
+        {
+            "name": "customDevice",
+            "priority": 400,
+            "fragments": ["c8y_IsDevice"],
+            "type": "lab",
+            "columns": [
+                "id",
+                "name",
+                "type",
+                "os",
+                "lastUpdated",
+                "creationTime"
+            ]
+        }
+    ]
+}
