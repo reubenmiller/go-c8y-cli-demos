@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/extension.json
+version: "v1"
+aliases:
+  - name: lookup
+    description: Lookup external identity by name
+    command: |
+      identity get --name "$1"
+    shell: false
+  
+  - name: devstat
+    description: Device type statistics (sample of first 2000 devices)
+    command: |
+      c8y devices list -p 2000 --select type -o csv | sort | uniq -c | sort --human-numeric-sort --reverse
+    shell: true

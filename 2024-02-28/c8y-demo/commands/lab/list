@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -e
+c8y devices list --type lab --view demo::customDevice "$@"

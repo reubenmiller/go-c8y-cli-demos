@@ -4,3 +4,4 @@ c8y.activitylog*.json
 2022-01-27/02-cicd/python3-c8ylp-2.0.0-*.deb
 __pycache__
 *.pyc
+.DS_Store

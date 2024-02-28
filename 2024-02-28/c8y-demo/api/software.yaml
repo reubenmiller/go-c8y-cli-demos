@@ -1,0 +1,192 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/extensionCommands.json
+---
+group:
+  name: software
+  description: Advanced Software management via new c8y microservice
+
+commands:
+  - name: list
+    method: GET
+    description: List software
+    descriptionLong: Find software packages for a device
+    path: service/advanced-software-mgmt/software
+    accept: application/json
+    collectionType: application/vnd.com.nsn.cumulocity.customDeviceSoftware+json
+    collectionProperty: 'softwareList'
+    exampleList:
+      - command: c8y devices software list --device 12345
+        description: Find all software (from a device)
+
+      - command: c8y devices software list --device 12345 --name "ssh*"
+        description: Find any software matching ssh*
+
+      - command: c8y devices software list --device 12345 --name ssh --version 2.0.0
+        description: Find software matching the name 'ssh' and version '2.0.0'
+
+      - command: |
+          c8y devices list --name "rpi*" | c8y devext software list --outputTemplate "[{deviceId: input.value.id} + item for item in output]"
+        description: Get a the software list for each device and include the device id on each item of software
+
+    queryParameters:
+      - name: device
+        property: deviceId
+        type: device[]
+        pipeline: true
+        description: Device
+
+      - name: name
+        type: string
+        description: Software name
+
+      - name: version
+        type: string
+        description: Software version
+
+      - name: type
+        type: string
+        description: Software type
+        completion:
+          type: external
+          command:
+            - c8y
+            - inventory
+            - find
+            - --query
+            - "((has(softwareType)) and (type eq 'c8y_Software'))"
+            - "--orderBy"
+            - "name asc,softwareType asc"
+            - --select=softwareType
+            - -o=csv
+            - --pageSize=200
+
+  - name: set
+    method: POST
+    path: service/advanced-software-mgmt/software
+    accept: application/json
+    contentType: application/vnd.com.nsn.cumulocity.managedObject+json
+    collectionType: application/vnd.com.nsn.cumulocity.managedObject+json
+    description: Set/replace software list
+    descriptionLong: Set/replace a list of software for a device
+    exampleList:
+      - description: Set/replace the list of software on a device
+        command: c8y devices software set --device 12345 --name ntp --version 1.0.2 --type apt
+
+    queryParameters:
+      - name: device
+        property: deviceId
+        type: device[]
+        pipeline: true
+        description: Device
+
+    bodyContent:
+      type: jsonarray
+    body:
+      - name: name
+        type: string
+        property: '0.name'
+        description: Software name
+
+      - name: version
+        type: string
+        property: '0.version'
+        description: Software version
+
+      - name: url
+        type: string
+        property: '0.url'
+        description: Software url
+
+      - name: type
+        type: string
+        property: '0.softwareType'
+        description: Software type, e.g. apt
+
+    bodyRequiredKeys:
+      - "0.name"
+
+  - name: add
+    method: PUT
+    path: service/advanced-software-mgmt/software
+    accept: application/json
+    contentType: application/vnd.com.nsn.cumulocity.managedObject+json
+    collectionType: application/vnd.com.nsn.cumulocity.managedObject+json
+    description: Add software package
+    descriptionLong: Add software packages to a device
+    exampleList:
+      - description: Add software to a device
+        command: c8y devices software add --device 12345 --name myapp --version 1.0.2
+
+      - description: Add software to multiple devices (using pipeline)
+        command: c8y devices list | c8y devices software add --name myapp --version 1.0.2
+
+    queryParameters:
+      - name: device
+        property: deviceId
+        type: device[]
+        description: Device
+
+    bodyContent:
+      type: jsonarray
+    body:
+      - name: name
+        type: string
+        property: '0.name'
+        description: Software name
+
+      - name: version
+        type: string
+        property: '0.version'
+        description: Software version
+
+      - name: url
+        type: string
+        property: '0.url'
+        description: Software url
+
+      - name: type
+        type: string
+        property: '0.softwareType'
+        description: Software type, e.g. apt
+
+  - name: delete
+    method: DELETE
+    path: service/advanced-software-mgmt/software
+    accept: application/json
+    contentType: application/vnd.com.nsn.cumulocity.managedObject+json
+    collectionType: application/vnd.com.nsn.cumulocity.managedObject+json
+    description: Delete software
+    descriptionLong: |
+      Delete an existing software item from a device. This does not send an operation,
+      it just modifies the cloud digital twin.
+
+      For a software package to be deleted it must match both the name and version, and patterns
+      are not supported.
+    exampleList:
+      - description: Remove software
+        command: c8y devices software delete --device 22222 --name ntp --version 1.0.0
+
+      - description: Remove software from a list of devices (using pipeline)
+        command: c8y devices list | c8y devices software delete --name "myapp" --version 2.0.0
+
+    queryParameters:
+      - name: device
+        property: deviceId
+        type: device[]
+        pipeline: true
+        description: Device
+    bodyContent:
+      type: jsonarray
+    body:
+      - name: name
+        type: string
+        property: '0.name'
+        description: Software name
+
+      - name: version
+        property: '0.version'
+        type: string
+        description: Software version
+
+    bodyRequiredKeys:
+      - "0.name"
+      - "0.version"

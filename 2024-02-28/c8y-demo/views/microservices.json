@@ -1,0 +1,19 @@
+{
+    "$schema": "https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/views.json",
+    "version": "v1",
+    "definitions": [
+        {
+            "name": "ms/tenantowner",
+            "priority": 999,
+            "columns": [
+                "id",
+                "name",
+                "type",
+                "tenantId:owner.tenant.id",
+                "buildDate:manifest.dockerBuildInfo.buildDate",
+                "imageArch:manifest.dockerBuildInfo.imageArch",
+                "hostOSVersion:manifest.dockerBuildInfo.hostOSVersion"
+            ]
+        }
+    ]
+}
