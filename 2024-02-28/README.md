@@ -1,7 +1,5 @@
+# go-c8y-cli extensions?
 
-# go-c8y-cli what's new?
-
-Talk: 2024-02-28
 Duration: 1 hour (including 15mins Q&A)
 
 * Introduction to go-c8y-cli extensions
@@ -15,7 +13,8 @@ Duration: 1 hour (including 15mins Q&A)
 
 * Developers building UIs or microservices
 * Working on a customer project with custom data models
-* Platform maintainer
+* Solutions maintainer
+* Platform maintainer / Support
 
 ### Anatomy of an extension
 
@@ -34,8 +33,28 @@ The folder can be made shareable by committing it to a git repository.
 
 ## How to use extensions
 
+**Install**
+
+```sh
+c8y extension install <path|git_repo>
+```
+
+**List**
+
+```sh
+c8y extension list
+```
+
+**Use**
+
 ```sh
 c8y <extension_name> ...
+```
+
+**Updating**
+
+```
+c8y extensions update --all
 ```
 
 ### Commands
