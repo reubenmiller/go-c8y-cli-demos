@@ -15,6 +15,7 @@ Duration: 1 hour (including 15mins Q&A)
 * Working on a customer project with custom data models
 * Solutions maintainer
 * Platform maintainer / Support
+* PoC Wizard
 
 ### Anatomy of an extension
 
