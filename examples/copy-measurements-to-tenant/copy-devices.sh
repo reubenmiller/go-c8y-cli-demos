@@ -24,7 +24,7 @@ show_usage () {
     echo ""
     echo "Example 1: Copy all measurements, events and alarms from all devices, and don't prompt for confirmation"
     echo ""
-    echo "    $0 --destination targetTenantConfig.json --type measurements,events,alarms --force"
+    echo "    $0 --destination targetTenantConfig.json --type measurements,events,alarms,identities --force"
     echo ""
     echo ""
     echo "Example 2: Copy measurements from all devices (with c8y_IsDevice fragment), but only copy measurements between dates 100 days ago to 7 days ago"
@@ -40,7 +40,7 @@ show_usage () {
     echo "  --dateFrom <date|relative_date> : Only include measurements from a specific date"
     echo "  --dateTo <date|relative_date> : Only include measurements to a specific date"
     echo "  --delay <interval> : Delay between after each concurrent worker. This is used to rate limit the workers (to protect the tenant)"
-    echo "  --types <csv_list> : CSV list of c8y data types, i.e. measurements,events,alarms"
+    echo "  --types <csv_list> : CSV list of c8y data types, i.e. measurements,events,alarms,identities"
     echo "  --query <string> : Inventory managed object query"
     echo "  --force|-f : Don't prompt for confirmation"
     echo ""
@@ -222,6 +222,26 @@ while read -r device ; do
           --timeout "$TIMEOUT" \
           --abortOnErrors 1000000 \
           --cache
+    fi
+
+    # Copy external ids from source tenant to destination tenant
+    if [[ "$COPY_TYPES" =~ "identities" ]]; then
+      # Get the total amount of items in source tenant (for a sanity check)
+      total=$( c8y identity list -n --device "$device_id" --cache --pageSize 1 --includeAll | wc -l | xargs )
+
+      echo "$device" \
+      | c8y identity list --includeAll --cache --select 'externalId,type' --timeout "$TIMEOUT" \
+      | c8y identity create \
+          --device "$dst_device_id" \
+          --template "input.value" \
+          --session "$SESSION_DST" \
+          --workers "$WORKERS" \
+          --delay "$WORKER_DELAY" \
+          --progress \
+          --confirmText "Do you want to copy $total alarms to this device" \
+          --timeout "$TIMEOUT" \
+          --abortOnErrors 1000000 \
+          --cache 
     fi
 
 # Below controls which devices you want to move the measurements from. You can customize the query to anything you want
