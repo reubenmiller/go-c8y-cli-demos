@@ -147,7 +147,7 @@ while read -r device ; do
     # Store the destination device id for later usage.
     #
     dst_device_id="$( c8y inventory find -n --session "$SESSION_DST" --query "name eq '$device_name'" --orderBy name --pageSize 2 --select id -o csv )"
-    dst_match_count="$(echo "$dst_device_id" | grep "^[0-9]\+$" | wc -l | xargs)"
+    dst_match_count="$(echo "$dst_device_id" | grep -c "^[0-9]\+$" | xargs)"
 
     case "$dst_match_count" in
       0)
@@ -190,7 +190,7 @@ while read -r device ; do
       total=$( c8y events list -n --device "$device_id" --cache --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --pageSize 1 --withTotalPages --select statistics.totalPages -o csv )
 
       echo "$device" \
-      | c8y events list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,**' --timeout "$TIMEOUT" \
+      | c8y events list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,!self,!creationTime,!lastUpdated,**' --timeout "$TIMEOUT" \
       | c8y events create \
           --device "$dst_device_id" \
           --template "input.value" \
@@ -207,10 +207,10 @@ while read -r device ; do
     # Copy alarms from source tenant to destination tenant
     if [[ "$COPY_TYPES" =~ "alarms" ]]; then
       # Get the total amount of items in source tenant (for a sanity check)
-      alarms_total=$( c8y alarms list -n --device "$device_id" --cache --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --pageSize 1 --withTotalPages --select statistics.totalPages -o csv )
+      total=$( c8y alarms list -n --device "$device_id" --cache --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --pageSize 1 --withTotalPages --select statistics.totalPages -o csv )
 
       echo "$device" \
-      | c8y alarms list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,**' --timeout "$TIMEOUT" \
+      | c8y alarms list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,!self,!creationTime,!lastUpdated,**' --timeout "$TIMEOUT" \
       | c8y alarms create \
           --device "$dst_device_id" \
           --template "input.value" \
