@@ -24,7 +24,7 @@ show_usage () {
     echo ""
     echo "Example 1: Copy all measurements, events and alarms from all devices, and don't prompt for confirmation"
     echo ""
-    echo "    $0 --destination targetTenantConfig.json --type measurements,events,alarms --force"
+    echo "    $0 --destination targetTenantConfig.json --type measurements,events,alarms,identities --force"
     echo ""
     echo ""
     echo "Example 2: Copy measurements from all devices (with c8y_IsDevice fragment), but only copy measurements between dates 100 days ago to 7 days ago"
@@ -40,7 +40,7 @@ show_usage () {
     echo "  --dateFrom <date|relative_date> : Only include measurements from a specific date"
     echo "  --dateTo <date|relative_date> : Only include measurements to a specific date"
     echo "  --delay <interval> : Delay between after each concurrent worker. This is used to rate limit the workers (to protect the tenant)"
-    echo "  --types <csv_list> : CSV list of c8y data types, i.e. measurements,events,alarms"
+    echo "  --types <csv_list> : CSV list of c8y data types, i.e. measurements,events,alarms,identities"
     echo "  --query <string> : Inventory managed object query"
     echo "  --force|-f : Don't prompt for confirmation"
     echo ""
@@ -147,7 +147,7 @@ while read -r device ; do
     # Store the destination device id for later usage.
     #
     dst_device_id="$( c8y inventory find -n --session "$SESSION_DST" --query "name eq '$device_name'" --orderBy name --pageSize 2 --select id -o csv )"
-    dst_match_count="$(echo "$dst_device_id" | grep "^[0-9]\+$" | wc -l | xargs)"
+    dst_match_count="$(echo "$dst_device_id" | grep -c "^[0-9]\+$" | xargs)"
 
     case "$dst_match_count" in
       0)
@@ -190,7 +190,7 @@ while read -r device ; do
       total=$( c8y events list -n --device "$device_id" --cache --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --pageSize 1 --withTotalPages --select statistics.totalPages -o csv )
 
       echo "$device" \
-      | c8y events list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,**' --timeout "$TIMEOUT" \
+      | c8y events list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,!self,!creationTime,!lastUpdated,**' --timeout "$TIMEOUT" \
       | c8y events create \
           --device "$dst_device_id" \
           --template "input.value" \
@@ -207,10 +207,10 @@ while read -r device ; do
     # Copy alarms from source tenant to destination tenant
     if [[ "$COPY_TYPES" =~ "alarms" ]]; then
       # Get the total amount of items in source tenant (for a sanity check)
-      alarms_total=$( c8y alarms list -n --device "$device_id" --cache --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --pageSize 1 --withTotalPages --select statistics.totalPages -o csv )
+      total=$( c8y alarms list -n --device "$device_id" --cache --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --pageSize 1 --withTotalPages --select statistics.totalPages -o csv )
 
       echo "$device" \
-      | c8y alarms list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,**' --timeout "$TIMEOUT" \
+      | c8y alarms list --includeAll --dateFrom "$DATE_FROM" --dateTo "$DATE_TO" --cache --select '!id,!self,!creationTime,!lastUpdated,**' --timeout "$TIMEOUT" \
       | c8y alarms create \
           --device "$dst_device_id" \
           --template "input.value" \
@@ -222,6 +222,26 @@ while read -r device ; do
           --timeout "$TIMEOUT" \
           --abortOnErrors 1000000 \
           --cache
+    fi
+
+    # Copy external ids from source tenant to destination tenant
+    if [[ "$COPY_TYPES" =~ "identities" ]]; then
+      # Get the total amount of items in source tenant (for a sanity check)
+      total=$( c8y identity list -n --device "$device_id" --cache --pageSize 1 --includeAll | wc -l | xargs )
+
+      echo "$device" \
+      | c8y identity list --includeAll --cache --select 'externalId,type' --timeout "$TIMEOUT" \
+      | c8y identity create \
+          --device "$dst_device_id" \
+          --template "input.value" \
+          --session "$SESSION_DST" \
+          --workers "$WORKERS" \
+          --delay "$WORKER_DELAY" \
+          --progress \
+          --confirmText "Do you want to copy $total alarms to this device" \
+          --timeout "$TIMEOUT" \
+          --abortOnErrors 1000000 \
+          --cache 
     fi
 
 # Below controls which devices you want to move the measurements from. You can customize the query to anything you want
